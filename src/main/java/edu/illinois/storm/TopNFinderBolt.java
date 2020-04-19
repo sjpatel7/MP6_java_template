@@ -50,7 +50,7 @@ public class TopNFinderBolt extends BaseRichBolt {
 	  if (_topNMap.size() < _n) {
 	  	//add word and count if less than N elements in top N
 	  	_topNMap.put(count, word);
-	  else if (count > this_.topNMap.firstKey()) {
+	  } else if (count > _topNMap.firstKey()) {
 	  	_topNMap.put(count, word);
 	  }
 		  
