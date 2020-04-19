@@ -28,7 +28,11 @@ public class NormalizerBolt extends BaseBasicBolt {
     ------------------------------------------------- */
 
     // END
-
+    String w = tuple.getString(0);
+    w = w.toLowerCase();
+    if (!commonWords.contains(w)) {
+      collector.emit(new Values(w));
+    }
   }
 
   @Override
@@ -38,6 +42,6 @@ public class NormalizerBolt extends BaseBasicBolt {
     ------------------------------------------------- */
 
     // END
-
+    declarer.declare(new Fields("word"));
   }
 }
