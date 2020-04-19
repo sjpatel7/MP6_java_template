@@ -63,7 +63,7 @@ public class TopNFinderBolt extends BaseRichBolt {
 		  topNList += _topNMap.get(key) + ", ";
 	  }
 	  topNList = topNList.substring(0, topNList.length() - 2);
-	  collector.emit(new Values("top-N", topNList))
+	  collector.emit(new Values("top-N", topNList));
   }
 
   @Override
