@@ -19,7 +19,8 @@ public class FileReaderSpout implements IRichSpout {
   private String inputFile;
 
   // Hint: Add necessary instance variables if needed
-
+  FileReader _fr;
+  
   @Override
   public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
     this._context = context;
@@ -30,7 +31,7 @@ public class FileReaderSpout implements IRichSpout {
     ------------------------------------------------- */
 
     // END
-
+    this._fr = new FileReader(this.inputFile);  
   }
 
   // Set input file path
@@ -48,6 +49,13 @@ public class FileReaderSpout implements IRichSpout {
     2. don't forget to add a small sleep when the file is entirely read to prevent a busy-loop
     ------------------------------------------------- */
     // END
+    BufferedReader br = new BufferedReader(this._fr);
+    //CHANGE if sentence is delimited by period, not new line!
+    while ((line = br.readline()) != null) {
+      this._collector.emit(new Values(line));
+    }
+    br.close();
+    Utils.sleep(1000);
   }
 
   @Override
@@ -57,6 +65,7 @@ public class FileReaderSpout implements IRichSpout {
     ------------------------------------------------- */
 
     // END
+    declarer.declare(new Fields("sentence"));
   }
 
   @Override
@@ -66,6 +75,7 @@ public class FileReaderSpout implements IRichSpout {
     ------------------------------------------------- */
 
     // END
+    this._fr.close();
 
   }
 
