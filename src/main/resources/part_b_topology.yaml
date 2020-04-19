@@ -57,6 +57,7 @@ spouts:
   # You need to pass file name here using <withInputFileProperties> function
   - id: "sentence-spout"
     className: "edu.illinois.storm.FileReaderSpout"
+    parallelism: 1
     configMethods:
       - name: "withInputFileProperties"
         args:
