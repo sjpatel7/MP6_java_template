@@ -48,21 +48,82 @@ components:
   # Task: implement the redis store mapper
   # src/main/java/edu/illinois/storm/TopNStoreMapper.java
   # redis hash key for part D is "partDTopN"
-
+  - id: "partDMapper"
+    className: "edu.illinois.storm.TopNStoreMapper"
+    constructorArgs:
+      - "partDTopN"
+      
 # spout definitions
 spouts:
-  # Hint: the new file reading spout you need implement in this part is
-  # src/main/java/edu/illinois/storm/FileReaderSpout.java
-  # You need to pass file name here using <withInputFileProperties> function
-
+  - id: "sentence-spout"
+    className: "edu.illinois.storm.FileReaderSpout"
+    parallelism: 1
+    configMethods:
+      - name: "withInputFileProperties"
+        args:
+          - "/tmp/data.txt"
 # bolt definitions
 bolts:
   # Hint: the new top N tracking bolt you need implement in this part is
   # src/main/java/edu/illinois/storm/TopNFinderBolt.java
   # You need to pass N to the bolt here using <withNProperties> function
   # make sure it's 10 in your final submission
+  - id: "split-bolt"
+    className: "edu.illinois.storm.SplitSentenceBolt"
+    parallelism: 1
+  
+  - id: "normalizer-bolt"
+    className: "edu.illinois.storm.NormalizerBolt"
+    parallelism: 1
 
+  - id: "wordcount-bolt"
+    className: "edu.illinois.storm.WordCountBolt"
+    parallelism: 1
+  
+  - id: "topN-bolt"
+    className: "edu.illinois.storm.TopNFinderBolt"
+    parallelism: 1
+    configMethods:
+        - name: "withNProperties"
+          args:
+            - 10
+            
+  - id: "RedisStoreBolt"
+    className: "org.apache.storm.redis.bolt.RedisStoreBolt"
+    constructorArgs:
+      - ref: "poolConfig"
+      - ref: "partDMapper"
 
 # stream definitions
 # stream definitions define connections between spouts and bolts.
 streams:
+  - name: "sentence -> split"
+    from: "sentence-spout"
+    to: "split-bolt"
+    grouping:
+      type: SHUFFLE
+  
+  - name: "split -> normalize"
+    from: "split-bolt"
+    to: "normalizer-bolt"
+    grouping:
+      type: SHUFFLE
+  
+  - name: "normalize -> count"
+    from: "normalizer-bolt"
+    to: "wordcount-bolt"
+    grouping:
+      type: FIELDS
+      args: ["word"]
+      
+  - name: "count -> topN"
+    from: "wordcount-bolt"
+    to: "topN-bolt"
+    grouping:
+      type: SHUFFLE
+      
+  - name: "topN -> redis"
+    from: "topN-bolt"
+    to: "RedisStoreBolt"
+    grouping:
+      type: SHUFFLE
