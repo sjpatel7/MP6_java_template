@@ -92,7 +92,7 @@ streams:
     to: "split-bolt"
     grouping: 
       type: SHUFFLE
-    	
+
   # TODO
   # Task: pipe output of split bolt to word count bolt
   # Hint: choose the right grouping type to make problem easier
