@@ -45,19 +45,67 @@ components:
       - 0
 
   # Hint: redis hash key for part C is "partCWordCount"
+  - id: "partCMapper"
+    className: "edu.illinois.storm.WordCountStoreMapper"
+    constructorArgs: 
+      - "partCWordCount"
 
 # spout definitions
 spouts:
   # Hint: the new file reading spout you need implement in this part is
   # src/main/java/edu/illinois/storm/FileReaderSpout.java
   # You need to pass file name here using <withInputFileProperties> function
-
+  - id: "sentence-spout"
+    className: "edu.illinois.storm.FileReaderSpout"
+    parallelism: 1
+    configMethods:
+      - name: "withInputFileProperties"
+        args:
+          - "/tmp/data.txt"
 # bolt definitions
 bolts:
-  # Hint: the new normalize bolt you need implement in this part is
-  # src/main/java/edu/illinois/storm/NormalizerBolt.java
+  - id: "split-bolt"
+    className: "edu.illinois.storm.SplitSentenceBolt"
+    parallelism: 1
+  
+  - id: "normalizer-bolt"
+    className: "edu.illinois.storm.NormalizerBolt"
+    parallelism: 1
 
+  - id: "wordcount-bolt"
+    className: "edu.illinois.storm.WordCountBolt"
+    parallelism: 1
+
+  - id: "RedisStoreBolt"
+    className: "org.apache.storm.redis.bolt.RedisStoreBolt"
+    constructorArgs:
+      - ref: "poolConfig"
+      - ref: "partCMapper"
 # stream definitions
 # stream definitions define connections between spouts and bolts.
 streams:
   # Hint: add new normalize bolt into the topology
+  - name: "sentence -> split"
+    from: "sentence-spout"
+    to: "split-bolt"
+    grouping:
+      type: SHUFFLE
+  
+  - name: "split -> normalize"
+    from: "split-bolt"
+    to: "normalizer-bolt"
+    grouping:
+      type: SHUFFLE
+  
+  - name: "normalize -> count"
+    from: "normalizer-bolt"
+    to: "wordcount-bolt"
+    grouping:
+      type: FIELDS
+      args: ["word"]
+      
+  - name: "count -> redis"
+    from: "wordcount-bolt"
+    to: "RedisStoreBolt"
+    grouping:
+      type: SHUFFLE
