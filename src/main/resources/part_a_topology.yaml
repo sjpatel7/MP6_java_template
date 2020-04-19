@@ -91,7 +91,7 @@ streams:
     from: "sentence-spout"
     to: "split-bolt"
     grouping: 
-    	type: SHUFFLE
+      type: SHUFFLE
     	
   # TODO
   # Task: pipe output of split bolt to word count bolt
@@ -101,8 +101,8 @@ streams:
     from: "split-bolt"
     to: "wordcount-bolt"
     grouping:
-    	type: FIELDS
-    	args: ["word"]
+      type: FIELDS
+      args: ["word"]
 
   # TODO
   # Task: pipe output of word count bolt to redis store bolt
@@ -110,4 +110,4 @@ streams:
     from: "wordcount-bolt"
     to: "RedisStoreBolt"
     grouping: SHUFFLE
-    	type: 
+      type: 
