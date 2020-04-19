@@ -109,5 +109,5 @@ streams:
   - name: "wordcountBolt -> RedisStoreBolt"
     from: "wordcount-bolt"
     to: "RedisStoreBolt"
-    grouping: SHUFFLE
-      type: 
+    grouping:
+      type: SHUFFLE
