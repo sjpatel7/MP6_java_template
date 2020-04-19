@@ -25,8 +25,9 @@ public class TopNStoreMapper implements RedisStoreMapper {
     Task: define which part of the tuple as the key
 		Hint: the key for this part is always "top-N"
     ------------------------------------------------- */
-		return "";
+		//return "";
 		// End
+	  	return "top-N";
   }
 
   @Override
@@ -34,7 +35,8 @@ public class TopNStoreMapper implements RedisStoreMapper {
     /* ----------------------TODO-----------------------
     Task: define which part of the tuple as the value
     ------------------------------------------------- */
-		return "";
+		//return "";
 		// End
+	  	return tuple.getStringByField("list");
   }
 }
