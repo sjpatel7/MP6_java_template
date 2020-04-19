@@ -36,6 +36,10 @@ public class RandomSentenceSpout extends BaseRichSpout {
     ------------------------------------------------- */
 
 		// End
+		int num_sentences = this.sentences.length;
+		int idx = this._rand.nextInt(num_sentences);
+		String s = sentences[idx];
+		this._collector.emit(new Values(s));
   }
 
   public void declareOutputFields(OutputFieldsDeclarer declarer) {
@@ -44,5 +48,7 @@ public class RandomSentenceSpout extends BaseRichSpout {
     ------------------------------------------------- */
 
 		// End
+		declarer.declare(new Fields("sentence"));
+		
   }
 }

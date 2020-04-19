@@ -18,6 +18,12 @@ public class SplitSentenceBolt extends BaseBasicBolt {
     ------------------------------------------------- */
 
 		// End
+		String sentence = tuple.getString(0);
+		String[] words = sentence.split("[^a-zA-Z0-9-]");
+		for (int i = 0; i < words.length; i++) {
+			collector.emit(new Values(words[i]));
+		}
+		
   }
 
   @Override
@@ -27,5 +33,6 @@ public class SplitSentenceBolt extends BaseBasicBolt {
     ------------------------------------------------- */
 
 		// End
+		declarer.declare(new Fields("word"));
   }
 }

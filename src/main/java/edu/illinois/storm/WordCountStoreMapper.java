@@ -24,8 +24,9 @@ public class WordCountStoreMapper implements RedisStoreMapper {
     /* ----------------------TODO-----------------------
     Task: define which part of the tuple as the key
     ------------------------------------------------- */
-		return "";
+		//return "";
 		// End
+		return tuple.getStringByField("word");
   }
 
   @Override
@@ -33,7 +34,8 @@ public class WordCountStoreMapper implements RedisStoreMapper {
     /* ----------------------TODO-----------------------
     Task: define which part of the tuple as the value
     ------------------------------------------------- */
-		return "";
+		//return "";
 		// End
+		return tuple.getStringByField("count");
   }
 }

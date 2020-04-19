@@ -14,6 +14,8 @@ import java.util.Map;
 public class WordCountBolt extends BaseBasicBolt {
   // Hint: Add necessary instance variables if needed
 
+  Map<String, Integer> counts = new HashMap<String, Integer>();
+
   @Override
   public void execute(Tuple tuple, BasicOutputCollector collector) {
     /* ----------------------TODO-----------------------
@@ -22,6 +24,17 @@ public class WordCountBolt extends BaseBasicBolt {
     ------------------------------------------------- */
 
 		// End
+		String w = tuple.getString(0);
+		Integer count = counts.get(w);
+		if (count == null) {
+			count = 1;
+			counts.put(w, count);
+			collector.emit(new Values(w, count));
+		} else {
+			count++;
+			counts.put(w, count);
+			collector.emit(new Values(w, count));
+		}
   }
 
   @Override
@@ -31,5 +44,6 @@ public class WordCountBolt extends BaseBasicBolt {
     ------------------------------------------------- */
 
 		// End
+		declarer.declare(new Fields("word", "count"));
   }
 }
