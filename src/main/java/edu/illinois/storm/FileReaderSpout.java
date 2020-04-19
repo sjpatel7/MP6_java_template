@@ -32,7 +32,13 @@ public class FileReaderSpout implements IRichSpout {
     ------------------------------------------------- */
 
     // END
-    this._fr = new FileReader(this.inputFile);  
+    try {
+      this._fr = new FileReader(this.inputFile);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   // Set input file path
@@ -50,14 +56,20 @@ public class FileReaderSpout implements IRichSpout {
     2. don't forget to add a small sleep when the file is entirely read to prevent a busy-loop
     ------------------------------------------------- */
     // END
-    BufferedReader br = new BufferedReader(this._fr);
-    //CHANGE if sentence is delimited by period, not new line!
-    String line;
-    while ((line = br.readLine()) != null) {
-      this._collector.emit(new Values(line));
+    try {
+      BufferedReader br = new BufferedReader(this._fr);
+      //CHANGE if sentence is delimited by period, not new line!
+      String line;
+      while ((line = br.readLine()) != null) {
+        this._collector.emit(new Values(line));
+      }
+      br.close();
+      Utils.sleep(1000);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-    br.close();
-    Utils.sleep(1000);
   }
 
   @Override
