@@ -11,13 +11,15 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
+import java.util.*; //for TreeMap
+
 /** a bolt that finds the top n words. */
 public class TopNFinderBolt extends BaseRichBolt {
   private OutputCollector collector;
 
   // Hint: Add necessary instance variables and inner classes if needed
-
-
+  private int _n;
+  private TreeMap<Integer, String> _topNMap;
   @Override
   public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
     this.collector = collector;
@@ -29,6 +31,8 @@ public class TopNFinderBolt extends BaseRichBolt {
     ------------------------------------------------- */
 
 		// End
+	  	this._n = N;
+	  	this._topNMap = new TreeMap<Integer, String>();
 		return this;
   }
 
@@ -41,6 +45,25 @@ public class TopNFinderBolt extends BaseRichBolt {
     ------------------------------------------------- */
 
 		// End
+	  String word = tuple.getStringByField("word");
+	  Integer count = tuple.getIntegerByField("count");
+	  if (_topNMap.size() < _n) {
+	  	//add word and count if less than N elements in top N
+	  	_topNMap.put(count, word);
+	  else if (count > this_.topNMap.firstKey()) {
+	  	_topNMap.put(count, word);
+	  }
+		  
+	  if (_topNMap.size() > _n) {
+	  	_topNMap.remove(_topNMap.firstKey());
+	  }
+	  
+	  String topNList = "";
+	  for (Integer key : _topNMap.keySet()) {
+		  topNList += _topNMap.get(key) + ", ";
+	  }
+	  topNList = topNList.substring(0, topNList.length() - 2);
+	  collector.emit(new Values("top-N", topNList))
   }
 
   @Override
@@ -53,6 +76,7 @@ public class TopNFinderBolt extends BaseRichBolt {
     ------------------------------------------------- */
 
     // END
+	  declarer.declare(new Fields("top-N", "list"));
   }
 
 }
