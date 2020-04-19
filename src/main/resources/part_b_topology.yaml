@@ -30,7 +30,7 @@ config:
     topology.max.task.parallelism: 3
     # set this to true if you want to see more debug log
     # set it to false before submitting
-    topology.debug: false
+    topology.debug: true
     # Hint: you can set input file path here
     # make sure it's "/tmp/data.txt" in your final submission
 
@@ -45,16 +45,57 @@ components:
       - 0
 
   # Hint: redis hash key for part B is "partBWordCount"
+  - id: "partBMapper"
+    className: "edu.illinois.storm.WordCountStoreMapper"
+    constructorArgs:
+      - "partBWordCount"
 
 # spout definitions
 spouts:
   # Hint: the new file reading spout you need implement in this part is
   # src/main/java/edu/illinois/storm/FileReaderSpout.java
   # You need to pass file name here using <withInputFileProperties> function
-
+  - id: "sentence-spout"
+    className: "edu.illinois.storm.FileReaderSpout"
+    configMethods:
+      - name: "withInputFileProperties"
+        args:
+          - "/tmp/data.txt"
+        
 # bolt definitions
 bolts:
+  - id: "split-bolt"
+    className: "edu.illinois.storm.SplitSentenceBolt"
+    parallelism: 1
 
+  - id: "wordcount-bolt"
+    className: "edu.illinois.storm.WordCountBolt"
+    parallelism: 1
+
+  - id: "RedisStoreBolt"
+    className: "org.apache.storm.redis.bolt.RedisStoreBolt"
+    constructorArgs:
+      - ref: "poolConfig"
+      - ref: "partBMapper"
+      
 # stream definitions
 # stream definitions define connections between spouts and bolts.
 streams:
+  - name: "sentence -> split"
+    from: "sentence-spout"
+    to: "split-bolt"
+    grouping:
+      type: SHUFFLE
+  
+  - name: "split -> count"
+    from: "split-bolt"
+    to: "wordcount-bolt"
+    grouping:
+      type: FIELDS
+      args: ["word"]
+      
+  - name: "count -> redis"
+    from: "wordcount-bolt"
+    to: "RedisStoreBolt"
+    grouping:
+      type: SHUFFLE
