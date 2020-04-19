@@ -79,8 +79,8 @@ bolts:
   - id: "RedisStoreBolt"
     className: "org.apache.storm.redis.bolt.RedisStoreBolt"
     constructorArgs:
-      - ref "poolConfig"
-      - ref "partAMapper"
+      - ref: "poolConfig"
+      - ref: "partAMapper"
 
 # stream definitions
 # stream definitions define connections between spouts and bolts.
