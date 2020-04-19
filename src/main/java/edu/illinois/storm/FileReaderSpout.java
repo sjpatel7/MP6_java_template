@@ -52,7 +52,7 @@ public class FileReaderSpout implements IRichSpout {
     BufferedReader br = new BufferedReader(this._fr);
     //CHANGE if sentence is delimited by period, not new line!
     String line;
-    while ((line = br.readline()) != null) {
+    while ((line = br.readLine()) != null) {
       this._collector.emit(new Values(line));
     }
     br.close();
