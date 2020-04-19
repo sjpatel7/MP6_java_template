@@ -93,8 +93,6 @@ public class FileReaderSpout implements IRichSpout {
       this._fr.close();
     } catch(IOException e) {
       e.printStackTrace();
-    } catch(FileNotFoundException e) {
-      e.printStackTrace();
     }
   }
 
