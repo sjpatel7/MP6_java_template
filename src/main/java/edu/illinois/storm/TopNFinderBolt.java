@@ -47,6 +47,14 @@ public class TopNFinderBolt extends BaseRichBolt {
 		// End
 	  String word = tuple.getStringByField("word");
 	  Integer count = tuple.getIntegerByField("count");
+	  //if word already in treeMap, remove and update
+	  if (word in _topNMap.values()) {
+	  	for (Integer key : _topNMap.keySet()) {
+			if (_topNMap.get(key).equals(word)) {
+				_topNMap.remove(key);
+			}
+		}
+	  }
 	  if (_topNMap.size() < _n) {
 	  	//add word and count if less than N elements in top N
 	  	_topNMap.put(count, word);
