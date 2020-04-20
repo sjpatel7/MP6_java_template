@@ -60,6 +60,13 @@ public class TopNFinderBolt extends BaseRichBolt {
 	  if (_topNMap.size() < _n) {
 	  	//add word and count if less than N elements in top N
 	  	_topNMap.put(word, count);
+	  } else if (_topNMap.size() == _n){
+		String topNList = "";
+	  	for (String key : _topNMap.keySet()) {
+			topNList += key + ", ";
+	  	}
+	  	topNList = topNList.substring(0, topNList.length() - 2);
+	  	collector.emit(new Values("top-N", topNList)); 
 	  } else {
 		for (String w : _topNMap.keySet()) {
 			Integer c = _topNMap.get(w);
