@@ -73,17 +73,19 @@ public class TopNFinderBolt extends BaseRichBolt {
 			_topNMap.remove(minWord);
 		}
 		_topNTreeMap.clear();
+		  
+		String topNList = "";
+		int c = 0;
+	  	for (String key : _topNMap.keySet()) {
+			topNList += key + ", ";
+			c++;
+	  	}
+	  	topNList = topNList.substring(0, topNList.length() - 2);
+	  	if (c == _n) {
+	  		collector.emit(new Values("top-N", topNList));
+	  	}
 	  }
-	  String topNList = "";
-	  int c = 0;
-	  for (String key : _topNMap.keySet()) {
-		topNList += key + ", ";
-		c++;
-	  }
-	  topNList = topNList.substring(0, topNList.length() - 2);
-	  if (c == _n) {
-	  	collector.emit(new Values("top-N", topNList));
-	  }
+	  
 		  
 	  //if (_topNMap.size() > _n) {
 	  	//_topNMap.remove(_topNMap.firstKey());
