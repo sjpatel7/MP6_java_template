@@ -61,7 +61,7 @@ public class TopNFinderBolt extends BaseRichBolt {
 	  	//add word and count if less than N elements in top N
 	  	_topNMap.put(word, count);
 	  }
-	  if (_topNMap.size() >= _n) {
+	  if (_topNMap.size() > _n) {
 		for (String w : _topNMap.keySet()) {
 			Integer c = _topNMap.get(w);
 			_topNTreeMap.put(c, w);
@@ -73,14 +73,13 @@ public class TopNFinderBolt extends BaseRichBolt {
 			_topNMap.remove(minWord);
 		}
 		_topNTreeMap.clear();
-		  
-		String topNList = "";
-	  	for (String key : _topNMap.keySet()) {
-			topNList += key + ", ";
-	  	}
-	  	topNList = topNList.substring(0, topNList.length() - 2);
-	  	collector.emit(new Values("top-N", topNList));  
 	  }
+	  String topNList = "";
+	  for (String key : _topNMap.keySet()) {
+		topNList += key + ", ";
+	  }
+	  topNList = topNList.substring(0, topNList.length() - 2);
+	  collector.emit(new Values("top-N", topNList));
 		  
 	  //if (_topNMap.size() > _n) {
 	  	//_topNMap.remove(_topNMap.firstKey());
