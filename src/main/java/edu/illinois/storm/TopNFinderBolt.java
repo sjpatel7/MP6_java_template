@@ -19,7 +19,8 @@ public class TopNFinderBolt extends BaseRichBolt {
 
   // Hint: Add necessary instance variables and inner classes if needed
   private int _n;
-  private TreeMap<Integer, String> _topNMap;
+  private TreeMap<Integer, String> _topNTreeMap;
+  private HashMap<String, Integer> _topNMap;
   @Override
   public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
     this.collector = collector;
@@ -32,7 +33,8 @@ public class TopNFinderBolt extends BaseRichBolt {
 
 		// End
 	  	this._n = N;
-	  	this._topNMap = new TreeMap<Integer, String>();
+	  	this._topNTreeMap = new TreeMap<Integer, String>();
+	  	this._topNMap = new HashMap<String, Integer>();
 		return this;
   }
 
@@ -57,21 +59,38 @@ public class TopNFinderBolt extends BaseRichBolt {
 	  //}
 	  if (_topNMap.size() < _n) {
 	  	//add word and count if less than N elements in top N
-	  	_topNMap.put(count, word);
-	  } else if (count > _topNMap.firstKey()) {
-	  	_topNMap.put(count, word);
+	  	_topNMap.put(word, count);
+	  } else {
+		for (String word : _topNMap.keySet()) {
+			_topNTreeMap.put(count, word);
+		}
+		Integer minCount = _topNTreeMap.firstKey();
+		String minWord = _topNTreeMap.get(minCount);
+	  	if (count > minCount) {
+			_topNMap.put(word, count);
+			_topNMap.remove(minWord);
+		}
+		_topNTreeMap.clear();
+		  
+		String topNList = "";
+	  	for (Integer key : _topNMap.keySet()) {
+			topNList += key + ", ";
+	  	}
+	  	topNList = topNList.substring(0, topNList.length() - 2);
+	  	collector.emit(new Values("top-N", topNList));  
 	  }
 		  
-	  if (_topNMap.size() > _n) {
-	  	_topNMap.remove(_topNMap.firstKey());
-	  }
-	  
+	  //if (_topNMap.size() > _n) {
+	  	//_topNMap.remove(_topNMap.firstKey());
+	  //}
+	  /*
 	  String topNList = "";
 	  for (Integer key : _topNMap.keySet()) {
 		  topNList += _topNMap.get(key) + ", ";
 	  }
 	  topNList = topNList.substring(0, topNList.length() - 2);
 	  collector.emit(new Values("top-N", topNList));
+	  */
   }
 
   @Override
