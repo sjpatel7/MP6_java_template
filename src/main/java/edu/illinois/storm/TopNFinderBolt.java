@@ -49,21 +49,14 @@ public class TopNFinderBolt extends BaseRichBolt {
 		// End
 	  String word = tuple.getStringByField("word");
 	  Integer count = tuple.getIntegerByField("count");
-	  //if word already in treeMap, remove and update
-	  //if (_topNMap.values().contains(word)) {
-	  	//for (Integer key : _topNMap.keySet()) {
-			//if (_topNMap.get(key).equals(word)) {
-				//_topNMap.remove(key);
-			//}
-		//}
-	  //}
+
 	  if (_topNMap.size() < _n) {
 	  	//add word and count if less than N elements in top N
 	  	_topNMap.put(word, count);
-	  } else if (_topNMap.size() > _n) {
+	  } else {//if (_topNMap.size() > _n) {
 		for (String w : _topNMap.keySet()) {
 			Integer c = _topNMap.get(w);
-			if (_topNTreeMap.get(c) < w) {
+			if (_topNTreeMap.get(c) == null || _topNTreeMap.get(c).compareTo(w) < 0) {
 				_topNTreeMap.put(c, w);
 			}
 		}
@@ -72,7 +65,7 @@ public class TopNFinderBolt extends BaseRichBolt {
 	  	if (count > minCount) {
 			_topNMap.remove(minWord);
 			_topNMap.put(word, count);
-		} else if (count == minCount && word > minWord) {
+		} else if (count == minCount && word.compareTo(minWord) > 0) {
 			_topNMap.remove(minWord);
 			_topNMap.put(word, count);
 		}
@@ -89,19 +82,6 @@ public class TopNFinderBolt extends BaseRichBolt {
 	  		collector.emit(new Values("top-N", topNList));
 	  	}
 	  }
-	  
-		  
-	  //if (_topNMap.size() > _n) {
-	  	//_topNMap.remove(_topNMap.firstKey());
-	  //}
-	  /*
-	  String topNList = "";
-	  for (Integer key : _topNMap.keySet()) {
-		  topNList += _topNMap.get(key) + ", ";
-	  }
-	  topNList = topNList.substring(0, topNList.length() - 2);
-	  collector.emit(new Values("top-N", topNList));
-	  */
   }
 
   @Override
